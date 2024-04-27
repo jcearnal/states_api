@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); 
 const statesRoutes = require('./routes/statesRoutes');
 
 const app = express();
@@ -22,11 +23,11 @@ mongoose.connect(process.env.DATABASE_URI, {
     console.error('Connection error:', err);
 });
 
+// Serve static files from the public directory
+app.use(express.static('public'));
+
 // Use the states routes
 app.use('/states', statesRoutes);
-
-// Serve static files from a public directory (optional)
-app.use(express.static('public'));
 
 // Root endpoint GET request should return an HTML document
 app.get('/', (req, res) => {
