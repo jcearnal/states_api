@@ -1,22 +1,25 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const statesRoutes = require('./routes/statesRoutes');
 
 const app = express();
-const port = process.env.PORT || 3000; // Set the port from environment variable or default to 3000
+const port = process.env.PORT || 3000;
+
+app.use(cors()); // Enable CORS for all requests
 
 app.use(express.json()); // Middleware for parsing JSON bodies
 
 // MongoDB Connection
-mongoose.connect(process.env.DATABASE_URI, { // Connect to MongoDB using the URI from environment variable
+mongoose.connect(process.env.DATABASE_URI, {
     writeConcern: {
-        w: "majority" // Set write concern to 'majority'
+        w: "majority"
     }
 }).then(() => {
-    console.log('MongoDB connected...'); // Log successful MongoDB connection
+    console.log('MongoDB connected...');
 }).catch(err => {
-    console.error('Connection error:', err); // Log MongoDB connection error
+    console.error('Connection error:', err);
 });
 
 // Use the states routes
@@ -36,5 +39,5 @@ app.use((req, res, next) => {
 });
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`); // Log the port the server is running on
+    console.log(`Server running on port ${port}`);
 });
