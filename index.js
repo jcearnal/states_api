@@ -10,8 +10,6 @@ app.use(express.json()); // Middleware for parsing JSON bodies
 
 // MongoDB Connection
 mongoose.connect(process.env.DATABASE_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     writeConcern: {
         w: "majority"  
     }
