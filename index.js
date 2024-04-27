@@ -33,8 +33,8 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Catch-all route to handle undefined routes and return a 404 HTML document
-app.use((req, res, next) => {
+// Catch-all route to handle all undefined routes and return a 404 HTML document
+app.all('*', (req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
