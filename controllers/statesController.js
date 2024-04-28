@@ -82,13 +82,16 @@ exports.getNickname = async (req, res) => {
 exports.getPopulation = async (req, res) => {
     const { stateCode } = req.params;
     const normalizedStateCode = stateCode.toUpperCase();
-    const stateData = statesData.find(state => state.code === normalizedStateCode);
+    const stateData = statesData.find(state => state.code.toUpperCase() === normalizedStateCode);
 
     if (!stateData) {
         return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
     }
 
-    res.json({ state: stateData.state, population: stateData.population });
+    // Formatting population with commas for thousands
+    const formattedPopulation = stateData.population.toLocaleString();
+
+    res.json({ state: stateData.state, population: formattedPopulation });
 };
 
 exports.getAdmission = async (req, res) => {
