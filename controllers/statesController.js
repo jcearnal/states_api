@@ -172,13 +172,19 @@ exports.updateFunFact = async (req, res) => {
     const normalizedStateCode = stateCode.toUpperCase();
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
-        if (!state || !state.funfacts || state.funfacts.length < index) {
+        if (!state) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+        }
+        if (state.funfacts.length === 0) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+        }
+        if (index > state.funfacts.length || index - 1 < 0) {
             return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
         }
 
         state.funfacts[index - 1] = funfact;
         await state.save();
-        res.json(state); 
+        res.json(state);
     } catch (error) {
         res.status(500).json({ message: "Error updating fun fact", error });
     }
@@ -188,7 +194,7 @@ exports.deleteFunFact = async (req, res) => {
     const { stateCode } = req.params;
     const { index } = req.body;
 
-    if (!index) {
+    if (!index || index < 1) {
         return res.status(400).json({ message: 'State fun fact index value required' });
     }
 
@@ -198,15 +204,19 @@ exports.deleteFunFact = async (req, res) => {
         if (!state) {
             return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
         }
-        if (state.funfacts.length < index || index < 1) {
+        if (state.funfacts.length === 0) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+        }
+        if (index > state.funfacts.length) {
             return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
         }
 
         state.funfacts.splice(index - 1, 1);
         await state.save();
-        res.json(state); 
+        res.json(state);
     } catch (error) {
         res.status(500).json({ message: "Error deleting fun fact", error });
     }
 };
+
 
