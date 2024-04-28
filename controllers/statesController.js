@@ -117,8 +117,9 @@ exports.getFunFacts = async (req, res) => {
         if (!stateFunFacts || !stateFunFacts.funfacts || stateFunFacts.funfacts.length === 0) {
             return res.status(404).json({ message: `No Fun Facts found for ${stateData.state}` });
         }
-        // Changing 'funfacts' to 'funfact' in the response
-        res.json({ state: stateData.state, funfact: stateFunFacts.funfacts });
+        // Selecting a random fun fact from the array
+        const randomFunFact = stateFunFacts.funfacts[Math.floor(Math.random() * stateFunFacts.funfacts.length)];
+        res.json({ funfact: randomFunFact });
     } catch (error) {
         res.status(500).json({ message: `Error fetching fun facts for ${stateData.state}`, error });
     }
