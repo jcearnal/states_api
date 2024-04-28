@@ -133,13 +133,13 @@ exports.addFunFact = async (req, res) => {
     const { funfacts } = req.body;
 
     if (!funfacts) {
-        return res.status(400).json({ error: 'State fun facts value required' });
+        return res.status(400).json({ message: 'State fun facts value required' });
     }
     if (!Array.isArray(funfacts)) {
-        return res.status(400).json({ error: 'State fun facts value must be an array' });
+        return res.status(400).json({ message: 'State fun facts value must be an array' });
     }
     if (funfacts.length === 0) {
-        return res.status(400).json({ error: 'State fun facts value required' });
+        return res.status(400).json({ message: 'State fun facts value required' });
     }
 
     const normalizedStateCode = stateCode.toUpperCase();
