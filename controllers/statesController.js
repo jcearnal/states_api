@@ -161,54 +161,57 @@ exports.addFunFact = async (req, res) => {
 exports.updateFunFact = async (req, res) => {
     const { stateCode } = req.params;
     const { index, funfact } = req.body;
-
-    if (index === undefined || index < 1) {
-        return res.status(400).json({ message: 'State fun fact index value required' });
-    }
-    if (!funfact) {
-        return res.status(400).json({ message: 'State fun fact value required' });
-    }
-
     const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code.toUpperCase() === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    if (index === undefined || index < 1 || !funfact) {
+        return res.status(400).json({
+            message: `State fun fact index and value required`
+        });
+    }
+
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
-        if (!state || (state.funfacts && state.funfacts.length === 0)) {
-            return res.status(404).json({ message: `No Fun Facts found for ${statesData.state}` });
-        }
-        if (index > state.funfacts.length || index - 1 < 0) {
-            return res.status(404).json({ message: `No Fun Fact found at that index for ${statesData.state}` });
+        if (!state || !state.funfacts || state.funfacts.length < index) {
+            return res.status(404).json({ message: `No Fun Fact found at that index for ${stateData.state}` });
         }
 
         state.funfacts[index - 1] = funfact;
         await state.save();
         res.json(state);
     } catch (error) {
-        res.status(500).json({ message: "Error updating fun fact", error });
+        res.status(500).json({ message: `Error updating fun fact for ${stateData.state}`, error });
     }
 };
 
 exports.deleteFunFact = async (req, res) => {
     const { stateCode } = req.params;
     const { index } = req.body;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code.toUpperCase() === normalizedStateCode);
 
-    if (index === undefined || index < 1) {
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    if (!index) {
         return res.status(400).json({ message: 'State fun fact index value required' });
     }
 
-    const normalizedStateCode = stateCode.toUpperCase();
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
-        if (!state || (state.funfacts && state.funfacts.length === 0)) {
-            return res.status(404).json({ message: `No Fun Facts found for ${stateData.state}` });
-        }
-        if (index > state.funfacts.length) {
+        if (!state || !state.funfacts || index < 1 || index > state.funfacts.length) {
             return res.status(404).json({ message: `No Fun Fact found at that index for ${stateData.state}` });
         }
 
         state.funfacts.splice(index - 1, 1);
         await state.save();
-        res.json(state);
+        res.json({ message: 'Fun fact deleted successfully', state: stateData.state, funfacts: state.funfacts });
     } catch (error) {
-        res.status(500).json({ message: "Error deleting fun fact", error });
+        res.status(500).json({ message: `Error deleting fun fact for ${stateData.state}`, error });
     }
 };
