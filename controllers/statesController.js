@@ -55,6 +55,54 @@ exports.getStateDetails = async (req, res) => {
     }
 };
 
+exports.getCapital = async (req, res) => {
+    const { stateCode } = req.params;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    res.json({ state: stateData.name, capital: stateData.capital_city });
+};
+
+exports.getNickname = async (req, res) => {
+    const { stateCode } = req.params;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    res.json({ state: stateData.name, nickname: stateData.nickname });
+};
+
+exports.getPopulation = async (req, res) => {
+    const { stateCode } = req.params;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    res.json({ state: stateData.name, population: stateData.population });
+};
+
+exports.getAdmission = async (req, res) => {
+    const { stateCode } = req.params;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    res.json({ state: stateData.name, admitted: stateData.admission_date });
+};
+
 exports.getFunFacts = async (req, res) => {
     const { stateCode } = req.params;
     const normalizedStateCode = stateCode.toUpperCase();
