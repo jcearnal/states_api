@@ -174,13 +174,21 @@ exports.updateFunFact = async (req, res) => {
     const normalizedStateCode = stateCode.toUpperCase();
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
-        if (!state || !state.funfacts || state.funfacts.length < index) {
+        if (!state) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+        }
+        if (!state.funfacts || state.funfacts.length < index || index - 1 < 0) {
             return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
         }
+
         // Update the specific fun fact at the given index (1-based index)
         state.funfacts[index - 1] = funfact;
         await state.save();
-        res.json(state);
+        res.json({
+            message: "Fun fact updated successfully",
+            state: stateCode,
+            funfacts: state.funfacts
+        });
     } catch (error) {
         res.status(500).json({ message: "Error updating fun fact", error });
     }
@@ -188,21 +196,37 @@ exports.updateFunFact = async (req, res) => {
 
 exports.deleteFunFact = async (req, res) => {
     const { stateCode } = req.params;
-    const { index } = req.body;  // Make sure 'index' is being correctly pulled from the body
+    const { index } = req.body;  // Ensure index is provided in the body
 
-    if (!index) {  // Check that 'index' is not undefined, null, or zero
-        return res.status(400).json({ error: 'Index required' });
+    // Validate that index is provided and is a number
+    if (index === undefined || typeof index !== 'number') {
+        return res.status(400).json({ error: 'State fun fact index value required' });
     }
 
+    const normalizedStateCode = stateCode.toUpperCase();
     try {
-        const state = await State.findOne({ stateCode: stateCode.toUpperCase() });
-        if (!state || !state.funfacts[index - 1]) {
-            return res.status(404).json({ error: 'Fun fact not found' });
+        const state = await State.findOne({ stateCode: normalizedStateCode });
+        if (!state) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
         }
-        // Remove the fun fact at the specified index
+
+        if (!state.funfacts || state.funfacts.length === 0) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+        }
+
+        if (index < 1 || index > state.funfacts.length) {
+            return res.status(404).json({ message: 'No Fun Fact found at that index for ' + stateCode });
+        }
+
+        // Adjust index to be zero-based for array access
         state.funfacts.splice(index - 1, 1);
         await state.save();
-        res.json({ success: true, message: 'Fun fact deleted successfully', state });
+
+        res.json({
+            message: 'Fun fact deleted successfully',
+            state: stateCode,
+            funfacts: state.funfacts
+        });
     } catch (error) {
         res.status(500).json({ message: "Error deleting fun fact", error });
     }
