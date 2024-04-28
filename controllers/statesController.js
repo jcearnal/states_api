@@ -173,10 +173,10 @@ exports.updateFunFact = async (req, res) => {
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
         if (!state || (state.funfacts && state.funfacts.length === 0)) {
-            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+            return res.status(404).json({ message: `No Fun Facts found for ${statesData.state}` });
         }
         if (index > state.funfacts.length || index - 1 < 0) {
-            return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
+            return res.status(404).json({ message: `No Fun Fact found at that index for ${statesData.state}` });
         }
 
         state.funfacts[index - 1] = funfact;
@@ -199,10 +199,10 @@ exports.deleteFunFact = async (req, res) => {
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
         if (!state || (state.funfacts && state.funfacts.length === 0)) {
-            return res.status(404).json({ message: `No Fun Facts found for ${stateCode}` });
+            return res.status(404).json({ message: `No Fun Facts found for ${stateData.state}` });
         }
         if (index > state.funfacts.length) {
-            return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
+            return res.status(404).json({ message: `No Fun Fact found at that index for ${stateData.state}` });
         }
 
         state.funfacts.splice(index - 1, 1);
