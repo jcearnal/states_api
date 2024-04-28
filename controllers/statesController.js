@@ -162,7 +162,8 @@ exports.updateFunFact = async (req, res) => {
     const { stateCode } = req.params;
     const { index, funfact } = req.body;
 
-    if (!index) {
+    // Validate inputs
+    if (index === undefined || index < 1) {
         return res.status(400).json({ error: 'State fun fact index value required' });
     }
     if (!funfact) {
@@ -172,17 +173,24 @@ exports.updateFunFact = async (req, res) => {
     const normalizedStateCode = stateCode.toUpperCase();
     try {
         const state = await State.findOne({ stateCode: normalizedStateCode });
-        if (!state || !state.funfacts || index < 1 || index > state.funfacts.length) {
+        if (!state || !state.funfacts || state.funfacts.length < index || index - 1 < 0) {
             return res.status(404).json({ message: `No Fun Fact found at that index for ${stateCode}` });
         }
-
-        state.funfacts[index - 1] = funfact; // Correctly updating the specified index
+        // Update the specific fun fact at the given index (1-based index)
+        state.funfacts[index - 1] = funfact;
         await state.save();
-        res.json({ message: "Fun fact updated successfully", state: stateCode, funfacts: state.funfacts });
+
+        // Fetch the updated document to ensure all changes are captured
+        const updatedState = await State.findOne({ stateCode: normalizedStateCode });
+        if (!updatedState) {
+            return res.status(404).json({ message: 'State not found after update' });
+        }
+        res.json(updatedState);
     } catch (error) {
         res.status(500).json({ message: "Error updating fun fact", error });
     }
 };
+
 
 exports.deleteFunFact = async (req, res) => {
     const { stateCode } = req.params;
