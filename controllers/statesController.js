@@ -164,10 +164,10 @@ exports.updateFunFact = async (req, res) => {
 
     // Validate inputs
     if (index === undefined || index < 1) {
-        return res.status(400).json({ error: 'State fun fact index value required' });
+        return res.status(400).json({ message: 'State fun fact index value required' });
     }
     if (!funfact) {
-        return res.status(400).json({ error: 'State fun fact value required' });
+        return res.status(400).json({ message: 'State fun fact value required' });
     }
 
     const normalizedStateCode = stateCode.toUpperCase();
@@ -197,7 +197,7 @@ exports.deleteFunFact = async (req, res) => {
     const { index } = req.body;
 
     if (!index) {
-        return res.status(400).json({ error: 'State fun fact index value required' });
+        return res.status(400).json({ message: 'State fun fact index value required' });
     }
 
     const normalizedStateCode = stateCode.toUpperCase();
