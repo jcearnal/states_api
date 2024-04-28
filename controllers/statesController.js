@@ -63,24 +63,21 @@ exports.addFunFact = async (req, res) => {
 };
 
 exports.updateFunFact = async (req, res) => {
-    const { stateCode } = req.params;  // This gets the state code from the URL
-    const { index, funfact } = req.body;  // These should get the index and funfact from the request body
-
-    if (!index || !funfact) {
-        return res.status(400).json({ error: 'Missing index or funfact' });
-    }
+    const { stateCode } = req.params;
+    const { funfacts } = req.body;
 
     try {
-        const state = await State.findOne({ stateCode: stateCode.toUpperCase() });
-        if (!state || !state.funfacts[index - 1]) {
-            return res.status(404).json({ error: 'Fun fact not found' });
+        const state = await State.findOneAndUpdate(
+            { stateCode: stateCode.toUpperCase() },
+            { $set: { funfacts: funfacts } },  // or use $push to add to existing funfacts
+            { new: true, upsert: true }
+        );
+        if (!state) {
+            return res.status(404).json({ error: 'State not found' });
         }
-
-        state.funfacts[index - 1] = funfact;
-        await state.save();
         res.json(state);
     } catch (error) {
-        res.status(500).json({ message: "Error updating fun fact", error });
+        res.status(500).json({ error: 'Server error', message: error.message });
     }
 };
 
