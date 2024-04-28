@@ -32,17 +32,49 @@ exports.getAllStates = async (req, res) => {
 
 exports.getStateDetails = async (req, res) => {
     const { stateCode } = req.params;
-    const stateData = statesData.find(state => state.code.toUpperCase() === stateCode.toUpperCase());
+    const normalizedStateCode = stateCode.toUpperCase(); // Ensure case-insensitivity
+    const stateData = statesData.find(state => state.code.toUpperCase() === normalizedStateCode);
+    
     if (!stateData) {
-        return res.status(404).json({ error: 'State not found' });
+        // Handles invalid state abbreviation and non-existent state codes
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
     }
+
     try {
-        const stateFunFacts = await State.findOne({ stateCode });
-        res.json({ ...stateData, funfacts: stateFunFacts ? stateFunFacts.funfacts : [] });
+        const stateFunFacts = await State.findOne({ stateCode: normalizedStateCode });
+        const responseData = { ...stateData, funfacts: stateFunFacts ? stateFunFacts.funfacts : [] };
+
+        // Check if funfacts should not be included
+        if (['NH', 'RI'].includes(normalizedStateCode)) {
+            delete responseData.funfacts; // Remove funfacts property for NH and RI
+        }
+
+        res.json(responseData);
     } catch (error) {
         res.status(500).json({ message: "Error fetching state details", error });
     }
 };
+
+exports.getFunFacts = async (req, res) => {
+    const { stateCode } = req.params;
+    const normalizedStateCode = stateCode.toUpperCase();
+    const stateData = statesData.find(state => state.code === normalizedStateCode);
+
+    if (!stateData) {
+        return res.status(404).json({ message: 'Invalid state abbreviation parameter' });
+    }
+
+    try {
+        const stateFunFacts = await State.findOne({ stateCode: normalizedStateCode });
+        if (!stateFunFacts || !stateFunFacts.funfacts || stateFunFacts.funfacts.length === 0) {
+            return res.status(404).json({ message: `No Fun Facts found for ${stateData.name}` });
+        }
+        res.json({ state: stateData.name, funfacts: stateFunFacts.funfacts });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching fun facts", error });
+    }
+};
+
 
 exports.addFunFact = async (req, res) => {
     const { stateCode } = req.params;
